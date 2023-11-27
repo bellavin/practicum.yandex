@@ -1,3 +1,4 @@
+```
 const _readline = require("readline");
 
 const _reader = _readline.createInterface({
@@ -98,3 +99,4 @@ function readInt() {
   _curLine++;
   return n;
 }
+```
