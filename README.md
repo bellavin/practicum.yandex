@@ -1,4 +1,3 @@
-```
 const _readline = require("readline");
 
 const _reader = _readline.createInterface({
@@ -14,7 +13,7 @@ _reader.on("line", (line) => {
 
 process.stdin.on("end", solve);
 
-function createAdjacencyListInstance() {
+function getAdjacencyList() {
   const adjacencyList = {};
 
   return function (start, end) {
@@ -27,8 +26,6 @@ function createAdjacencyListInstance() {
       }
       adjacencyList[start].push(end);
       adjacencyList[end].push(start);
-      adjacencyList[start].sort((a, b) => a - b);
-      adjacencyList[end].sort((a, b) => a - b);
     }
 
     return adjacencyList;
@@ -41,29 +38,23 @@ function dfs(start, adjacencyList) {
   }
 
   const result = [];
+  const stack = [start];
   const visited = {};
+  visited[start] = true;
+  let currentVertex;
 
-  let vertices = Object.keys(adjacencyList).map((vertex) => {
-    return Number(vertex);
-  });
+  while (stack.length) {
+    currentVertex = stack.pop();
+    result.push(currentVertex);
 
-  const startIndex = vertices.indexOf(start);
-
-  vertices = vertices
-    .slice(startIndex, vertices.length)
-    .concat(vertices.slice(0, startIndex));
-
-  function recution(vertices) {
-    for (const vertex of vertices) {
-      if (!visited[vertex]) {
-        visited[vertex] = true;
-        result.push(vertex);
-
-        recution(adjacencyList[vertex]);
+    for (let i = 0; i < adjacencyList[currentVertex].length; i++) {
+      const neighbor = adjacencyList[currentVertex][i];
+      if (!visited[neighbor]) {
+        visited[neighbor] = true;
+        stack.push(neighbor);
       }
     }
   }
-  recution(vertices);
 
   return result;
 }
@@ -75,12 +66,12 @@ function solve() {
   const matrix = readMatrix(edgesQty);
   const firstVertex = readInt();
 
-  const getAdjacencyList = createAdjacencyListInstance();
+  const adjacencyList = getAdjacencyList();
   for (const edge of matrix) {
-    getAdjacencyList(edge[0], edge[1]);
+    adjacencyList(edge[0], edge[1]);
   }
 
-  const result = dfs(firstVertex, getAdjacencyList());
+  const result = dfs(firstVertex, adjacencyList());
 
   process.stdout.write(result.join(" "));
 }
@@ -107,4 +98,3 @@ function readInt() {
   _curLine++;
   return n;
 }
-```
