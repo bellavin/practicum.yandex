@@ -14,25 +14,6 @@ _reader.on("line", (line) => {
 
 process.stdin.on("end", solve);
 
-function getAdjacencyList() {
-  const adjacencyList = {};
-
-  return function (start, end) {
-    if (Number.isInteger(start) && Number.isInteger(end)) {
-      if (!adjacencyList[start]) {
-        adjacencyList[start] = [];
-      }
-      if (!adjacencyList[end]) {
-        adjacencyList[end] = [];
-      }
-      adjacencyList[start].push(end);
-      adjacencyList[end].push(start);
-    }
-
-    return adjacencyList;
-  };
-}
-
 function dfs(start, adjacencyList) {
   if (!Array.isArray(adjacencyList[start])) {
     return [start];
@@ -64,15 +45,10 @@ function solve() {
   const firstLine = readArray();
   const verticesQty = firstLine[0];
   const edgesQty = firstLine[1];
-  const matrix = readMatrix(edgesQty);
+  const adjacencyList = readAdjacencyList(edgesQty);
   const firstVertex = readInt();
 
-  const adjacencyList = getAdjacencyList();
-  for (const edge of matrix) {
-    adjacencyList(edge[0], edge[1]);
-  }
-
-  const result = dfs(firstVertex, adjacencyList());
+  const result = dfs(firstVertex, adjacencyList);
 
   process.stdout.write(result.join(" "));
 }
@@ -86,17 +62,41 @@ function readArray() {
   return arr;
 }
 
-function readMatrix(rowsCount) {
-  var arr = [];
-  for (let i = 0; i !== rowsCount; i++) {
-    arr.push(readArray());
-  }
-  return arr;
-}
-
 function readInt() {
   const n = Number(_inputLines[_curLine]);
   _curLine++;
   return n;
+}
+
+function createAdjacencyListInstance() {
+  const adjacencyList = {};
+
+  return function (start, end) {
+    if (Number.isInteger(start) && Number.isInteger(end)) {
+      if (!adjacencyList[start]) {
+        adjacencyList[start] = [];
+      }
+      if (!adjacencyList[end]) {
+        adjacencyList[end] = [];
+      }
+      adjacencyList[start].push(end);
+      adjacencyList[end].push(start);
+      adjacencyList[start].sort((a, b) => b - a);
+      adjacencyList[end].sort((a, b) => b - a);
+    }
+
+    return adjacencyList;
+  };
+}
+
+function readAdjacencyList(edgesQty) {
+  const getAdjacencyList = createAdjacencyListInstance();
+
+  for (let i = 0; i < edgesQty; i++) {
+    const edge = readArray();
+    getAdjacencyList(edge[0], edge[1]);
+  }
+
+  return getAdjacencyList();
 }
 ```
